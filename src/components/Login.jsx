@@ -4,32 +4,48 @@ import axios from "axios";
 
 const Login = () => {
     const navigate = useNavigate();
-    const [username, setUsername] = useState("");
+    const [email, setEmail] = useState(""); // Menggunakan email, bukan username
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
 
     const handleLogin = async () => {
         try {
-            const response = await axios.post("http://localhost:8888/login", {
-                username,
+            const response = await axios.post("http://localhost:3000/api/auth/login", {
+                email,
                 password,
             });
-            const { token, user } = response.data;
-            localStorage.setItem("authToken", token);
-            localStorage.setItem("user", JSON.stringify(user));
-
-            if (user.id === 1) {
+    
+            // Debug respons API
+            console.log("API Response:", response.data);
+    
+            // Ambil data dari respons
+            const { data } = response.data;
+    
+            if (!data || !data.accessToken) {
+                throw new Error("Invalid response from server");
+            }
+    
+            // Simpan accessToken dan data pengguna di localStorage
+            localStorage.setItem("authToken", data.accessToken);
+            localStorage.setItem("user", JSON.stringify(data.clean));
+    
+            // Redirect berdasarkan ID user
+            if (data.clean.id === 1) {
                 navigate("/AdminDashboard");
             } else {
                 navigate("/Home");
             }
+    
+            // Reload halaman setelah login berhasil
             window.location.reload();
-            // eslint-disable-next-line no-unused-vars
         } catch (err) {
+            // Tampilkan error di UI
+            console.error("Login Error:", err);
             setError("Login failed. Please check your credentials.");
         }
     };
-
+    
+    
     return (
         <div className="min-h-screen flex items-center justify-center sm:px-96 lg:px-96">
             <div className="container d-flex justify-content-center align-items-center ">
@@ -64,11 +80,11 @@ const Login = () => {
                             <form>
                                 <div className="mb-4">
                                     <input
-                                        type="text"
+                                        type="email" // Menggunakan email
                                         className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                        placeholder="Username"
-                                        value={username}
-                                        onChange={(e) => setUsername(e.target.value)}
+                                        placeholder="Email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)} // Mengubah email
                                     />
                                 </div>
                                 <div className="mb-4">
@@ -105,7 +121,7 @@ const Login = () => {
                             </form>
                             <div className="text-center mt-6">
                                 <p className="text-gray-600">
-                                    Dont have an account?{" "}
+                                    Don't have an account?{" "}
                                     <a
                                         onClick={() => navigate("/signup")}
                                         className="text-indigo-600 hover:underline cursor-pointer"
@@ -119,9 +135,6 @@ const Login = () => {
                 </div>
             </div>
         </div>
-
-
-
     );
 };
 

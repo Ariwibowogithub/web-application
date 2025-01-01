@@ -4,6 +4,7 @@ import axios from "axios";
 
 const Signup = () => {
     const navigate = useNavigate();
+    const [name, setName] = useState(""); // Tambahkan name untuk nama pengguna
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -12,32 +13,42 @@ const Signup = () => {
 
     const handleSignup = async (e) => {
         e.preventDefault();
+
+        // Validasi panjang password
+        if (password.length < 6) {
+            alert("Password harus memiliki minimal 6 karakter.");
+            return;
+        }
+
+        // Validasi kecocokan password dan confirm password
         if (password !== confirmPassword) {
             setError("Passwords do not match.");
             return;
         }
 
         try {
-            await axios.post("http://localhost:8888/register", {
-                username,
+            // Panggil endpoint register
+            await axios.post("http://localhost:3000/api/auth/register", {
                 email,
+                name,
+                username,
                 password,
             });
+
             // Navigasi ke halaman login setelah berhasil mendaftar
-            navigate("/Login");
+            navigate("/login");
         } catch (error) {
-            // Tampilkan pesan error
+            // Tampilkan pesan error dari backend
             setError(error.response?.data?.message || "Registration failed. Please try again.");
         }
     };
 
     return (
         <div className="min-h-screen flex items-center justify-center sm:px-96 lg:px-96">
-            <div className="container d-flex justify-content-center align-items-center ">
+            <div className="container d-flex justify-content-center align-items-center">
                 <div className="row border rounded-5 p-3 bg-white shadow box-area">
                     <div
                         className="col-md-6 rounded-4 d-flex justify-content-center align-items-center flex-column left-box bg-indigo-600"
-
                     >
                         <div className="featured-image mb-3">
                             <img
@@ -65,8 +76,8 @@ const Signup = () => {
                         </small>
                     </div>
 
-                    <div className="col-md-6 right-box ">
-                        <div className="row align-items-center ">
+                    <div className="col-md-6 right-box">
+                        <div className="row align-items-center">
                             <div className="header-text mb-4 text-center">
                                 <h2>SIGN UP HERE</h2>
                                 <p>Create Your User Account Now</p>
@@ -78,6 +89,16 @@ const Signup = () => {
                                         type="text"
                                         className="form-control form-control-lg bg-light fs-6"
                                         placeholder="Your Full Name"
+                                        value={name}
+                                        onChange={(e) => setName(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                <div className="input-group mb-3">
+                                    <input
+                                        type="text"
+                                        className="form-control form-control-lg bg-light fs-6"
+                                        placeholder="Username"
                                         value={username}
                                         onChange={(e) => setUsername(e.target.value)}
                                         required

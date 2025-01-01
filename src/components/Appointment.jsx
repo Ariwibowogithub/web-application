@@ -1,15 +1,40 @@
-import { useState } from 'react';
-import Swal from 'sweetalert2';
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 const Appointment = () => {
+  const navigate = useNavigate();
+
+  // Hooks harus dipanggil di luar logika kondisional
+  const [isLoggedIn, setIsLoggedIn] = useState(null); // Gunakan `null` sebagai default state
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    doctor: '',
-    date: '',
-    reason: '',
+    name: "",
+    email: "",
+    phone: "",
+    doctor: "",
+    date: "",
+    reason: "",
   });
+
+  // Validasi login di dalam useEffect
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+
+    if (!token) {
+      // Jika belum login, tampilkan peringatan dan arahkan ke halaman login
+      Swal.fire({
+        title: "Silahkan Login",
+        text: "Anda harus login terlebih dahulu untuk mengakses halaman ini.",
+        icon: "warning",
+        confirmButtonText: "OK",
+      }).then(() => {
+        navigate("/login");
+      });
+    } else {
+      // Set state login jika token ditemukan
+      setIsLoggedIn(true);
+    }
+  }, [navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -24,11 +49,11 @@ const Appointment = () => {
 
     const formBody = new FormData();
     Object.entries(formData).forEach(([key, value]) => formBody.append(key, value));
-    formBody.append('access_key', 'e94c9dc4-f965-4706-bdc1-4fcf17c1c327');
+    formBody.append("access_key", "e94c9dc4-f965-4706-bdc1-4fcf17c1c327");
 
     try {
-      const response = await fetch('https://api.web3forms.com/submit', {
-        method: 'POST',
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
         body: formBody,
       });
 
@@ -36,34 +61,38 @@ const Appointment = () => {
 
       if (data.success) {
         Swal.fire({
-          title: 'Success',
-          text: 'Appointment Booked Successfully',
-          icon: 'success',
+          title: "Success",
+          text: "Appointment Booked Successfully",
+          icon: "success",
         });
         setFormData({
-          name: '',
-          email: '',
-          phone: '',
-          doctor: '',
-          date: '',
-          reason: '',
+          name: "",
+          email: "",
+          phone: "",
+          doctor: "",
+          date: "",
+          reason: "",
         });
       } else {
         Swal.fire({
-          title: 'Error',
-          text: 'Something went wrong. Please try again.',
-          icon: 'error',
+          title: "Error",
+          text: "Something went wrong. Please try again.",
+          icon: "error",
         });
       }
-      // eslint-disable-next-line no-unused-vars
     } catch (error) {
       Swal.fire({
-        title: 'Error',
-        text: 'Network error. Please try again.',
-        icon: 'error',
+        title: "Error",
+        text: "Network error. Please try again.",
+        icon: "error",
       });
     }
   };
+
+  // Render loading screen jika isLoggedIn masih null
+  if (isLoggedIn === null) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="min-h-screen">
