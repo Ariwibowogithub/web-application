@@ -14,29 +14,15 @@ const Login = () => {
                 email,
                 password,
             });
+            const { token, user } = response.data;
+            localStorage.setItem("authToken", token);
+            localStorage.setItem("user", JSON.stringify(user));
 
-            // Debug respons API
-            console.log("API Response:", response.data);
-
-            // Ambil data dari respons
-            const { data } = response.data;
-
-            if (!data || !data.accessToken) {
-                throw new Error("Invalid response from server");
-            }
-
-            // Simpan accessToken dan data pengguna di localStorage
-            localStorage.setItem("authToken", data.accessToken);
-            localStorage.setItem("user", JSON.stringify(data.clean));
-
-            // Redirect berdasarkan ID user
-            if (data.clean.id === 1) {
+            if (user.id === 1) {
                 navigate("/AdminDashboard");
             } else {
                 navigate("/Home");
             }
-
-            // Reload halaman setelah login berhasil
             window.location.reload();
         } catch (err) {
             // Tampilkan error di UI
@@ -44,7 +30,6 @@ const Login = () => {
             setError("Login failed. Please check your credentials.");
         }
     };
-
 
     return (
         <div className="min-h-screen flex items-center justify-center sm:px-96 lg:px-96">

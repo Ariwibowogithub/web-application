@@ -80,7 +80,6 @@ const Appointment = () => {
           icon: "error",
         });
       }
-      // eslint-disable-next-line no-unused-vars
     } catch (error) {
       Swal.fire({
         title: "Error",
